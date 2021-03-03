@@ -126,7 +126,7 @@ const Desc = styled.div`
   border-radius: var(--br);
 `
 
-const IndexPage = ({ data: { info, lists, favMovies, favTV, watchedTV, watchedMovies } }) => (
+const IndexPage = ({ data: { info, favMovies, watchedMovies } }) => (
   <Wrapper>
     <SEO />
     <header>
@@ -165,39 +165,12 @@ const IndexPage = ({ data: { info, lists, favMovies, favTV, watchedTV, watchedMo
         <TabList>
           <BigTab>Favorites</BigTab>
           <BigTab>Watchlist</BigTab>
-          <BigTab>Lists</BigTab>
         </TabList>
         <TabPanel>
           <Tabs forceRenderTabPanel>
             <TabList>
-              <Tab>Series ({favTV.totalCount})</Tab>
               <Tab>Movies ({favMovies.totalCount})</Tab>
             </TabList>
-            <TabPanel>
-              <Row>
-                {favTV.nodes.map(tv => {
-                  let airDate
-                  if (tv.next_episode_to_air) {
-                    airDate = tv.next_episode_to_air.air_date
-                  }
-                  return (
-                    <Column key={tv.name}>
-                      <Card
-                        link={`tv/${tv.accountFavoriteTvId}`}
-                        cover={tv.poster_path.childImageSharp.fixed}
-                        name={tv.name}
-                        next={airDate}
-                        rating={tv.vote_average}
-                        status={tv.status}
-                        release={tv.first_air_date}
-                        episodes={tv.number_of_episodes}
-                        seasons={tv.number_of_seasons}
-                      />
-                    </Column>
-                  )
-                })}
-              </Row>
-            </TabPanel>
             <TabPanel>
               <Row>
                 {favMovies.nodes.map(movie => (
@@ -218,34 +191,8 @@ const IndexPage = ({ data: { info, lists, favMovies, favTV, watchedTV, watchedMo
         <TabPanel>
           <Tabs forceRenderTabPanel>
             <TabList>
-              <Tab>Series ({watchedTV.totalCount})</Tab>
               <Tab>Movies ({watchedMovies.totalCount})</Tab>
             </TabList>
-            <TabPanel>
-              <Row>
-                {watchedTV.nodes.map(tv => {
-                  let airDate
-                  if (tv.next_episode_to_air) {
-                    airDate = tv.next_episode_to_air.air_date
-                  }
-                  return (
-                    <Column key={tv.name}>
-                      <Card
-                        link={`tv/${tv.accountTvWatchlistId}`}
-                        cover={tv.poster_path.childImageSharp.fixed}
-                        name={tv.name}
-                        next={airDate}
-                        rating={tv.vote_average}
-                        status={tv.status}
-                        release={tv.first_air_date}
-                        episodes={tv.number_of_episodes}
-                        seasons={tv.number_of_seasons}
-                      />
-                    </Column>
-                  )
-                })}
-              </Row>
-            </TabPanel>
             <TabPanel>
               <Row>
                 {watchedMovies.nodes.map(movie => (
@@ -263,33 +210,6 @@ const IndexPage = ({ data: { info, lists, favMovies, favTV, watchedTV, watchedMo
             </TabPanel>
           </Tabs>
         </TabPanel>
-        <TabPanel>
-          <Tabs forceRenderTabPanel>
-            <TabList>
-              {lists.nodes.map(list => (
-                <Tab key={list.name}>{list.name}</Tab>
-              ))}
-            </TabList>
-            {lists.nodes.map(list => (
-              <TabPanel key={list.name}>
-                <Desc>{list.description}</Desc>
-                <Row>
-                  {list.items.map(item => (
-                    <Column key={item.name}>
-                      <Card
-                        link={`${item.media_type}/${item.listItemId}`}
-                        cover={item.poster_path.childImageSharp.fixed}
-                        name={item.name}
-                        rating={item.vote_average}
-                        release={item.first_air_date}
-                      />
-                    </Column>
-                  ))}
-                </Row>
-              </TabPanel>
-            ))}
-          </Tabs>
-        </TabPanel>
       </Tabs>
     </main>
   </Wrapper>
@@ -302,19 +222,7 @@ IndexPage.propTypes = {
     info: PropTypes.shape({
       username: PropTypes.string.isRequired,
     }),
-    lists: PropTypes.shape({
-      totalCount: PropTypes.number.isRequired,
-      nodes: PropTypes.array.isRequired,
-    }).isRequired,
     favMovies: PropTypes.shape({
-      totalCount: PropTypes.number.isRequired,
-      nodes: PropTypes.array.isRequired,
-    }).isRequired,
-    favTV: PropTypes.shape({
-      totalCount: PropTypes.number.isRequired,
-      nodes: PropTypes.array.isRequired,
-    }).isRequired,
-    watchedTV: PropTypes.shape({
       totalCount: PropTypes.number.isRequired,
       nodes: PropTypes.array.isRequired,
     }).isRequired,
@@ -330,49 +238,6 @@ export const pageQuery = graphql`
     info: tmdbAccountInfo {
       username
     }
-    lists: allTmdbAccountLists {
-      totalCount
-      nodes {
-        name
-        description
-        items {
-          name
-          vote_average
-          first_air_date
-          media_type
-          listItemId
-          poster_path {
-            childImageSharp {
-              fixed(height: 525, quality: 90) {
-                ...GatsbyImageSharpFixed_withWebp
-              }
-            }
-          }
-        }
-      }
-    }
-    favTV: allTmdbAccountFavoriteTv(sort: { fields: [vote_average], order: DESC }) {
-      totalCount
-      nodes {
-        poster_path {
-          childImageSharp {
-            fixed(height: 525, quality: 90) {
-              ...GatsbyImageSharpFixed_withWebp
-            }
-          }
-        }
-        name
-        next_episode_to_air {
-          air_date
-        }
-        accountFavoriteTvId
-        vote_average
-        status
-        number_of_episodes
-        number_of_seasons
-        first_air_date
-      }
-    }
     favMovies: allTmdbAccountFavoriteMovies(sort: { fields: [vote_average], order: DESC }) {
       totalCount
       nodes {
@@ -380,28 +245,6 @@ export const pageQuery = graphql`
         vote_average
         title
         accountFavoriteMoviesId
-        poster_path {
-          childImageSharp {
-            fixed(height: 525, quality: 90) {
-              ...GatsbyImageSharpFixed_withWebp
-            }
-          }
-        }
-      }
-    }
-    watchedTV: allTmdbAccountTvWatchlist(sort: { fields: [first_air_date], order: DESC }) {
-      totalCount
-      nodes {
-        first_air_date
-        next_episode_to_air {
-          air_date
-        }
-        vote_average
-        status
-        accountTvWatchlistId
-        name
-        number_of_seasons
-        number_of_episodes
         poster_path {
           childImageSharp {
             fixed(height: 525, quality: 90) {
