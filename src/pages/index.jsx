@@ -131,7 +131,7 @@ const IndexPage = ({ data: { info, favMovies, watchedMovies } }) => (
     <SEO />
     <header>
       <Title>
-        Series & Movies<span>.</span> {info.username}
+        Movies listed by<span> {info.name} </span>
       </Title>
       <Legend>
         <SmallTitle>Legend</SmallTitle>
@@ -220,7 +220,7 @@ export default IndexPage
 IndexPage.propTypes = {
   data: PropTypes.shape({
     info: PropTypes.shape({
-      username: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
     }),
     favMovies: PropTypes.shape({
       totalCount: PropTypes.number.isRequired,
@@ -236,7 +236,7 @@ IndexPage.propTypes = {
 export const pageQuery = graphql`
   query IndexQuery {
     info: tmdbAccountInfo {
-      username
+      name
     }
     favMovies: allTmdbAccountFavoriteMovies(sort: { fields: [vote_average], order: DESC }) {
       totalCount
